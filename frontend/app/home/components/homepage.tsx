@@ -32,7 +32,7 @@ type WSMessage = {
 
 const Home = () => {
   const router = useRouter();
-  const API_BASE = "http://localhost:8080";
+  const API_BASE = "https://upgradedchatappservice.onrender.com";
   const socketRef = useRef<WebSocket | null>(null);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -132,7 +132,7 @@ const Home = () => {
     const token = sessionStorage.getItem("access_token");
     if (!token) return;
 
-    const ws = new WebSocket(`ws://localhost:8080/ws?token=${token}`);
+    const ws = new WebSocket(`wss://upgradedchatappservice.onrender.com/ws?token=${token}`);
     socketRef.current = ws;
 
     ws.onopen = () => console.log("WebSocket connected");
