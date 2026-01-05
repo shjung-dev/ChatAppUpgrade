@@ -7,7 +7,6 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"github.com/shjung-dev/ChatApplication/backend/config"
 	"github.com/shjung-dev/ChatApplication/backend/helpers"
 	"github.com/shjung-dev/ChatApplication/backend/network"
@@ -16,15 +15,20 @@ import (
 
 func main() {
 
+	/*
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal(err)
 	}
+	*/
 
 	port := os.Getenv("PORT")
+	jwtKey := os.Getenv("JWT_KEY")
 	uri := os.Getenv("MONGO_URI")
 
 	config.ConnectDatabase(uri)
+
+	helpers.SetJWTKey(jwtKey)
 
 	r := gin.Default()
 
