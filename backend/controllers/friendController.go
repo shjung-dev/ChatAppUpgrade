@@ -12,67 +12,21 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func getClaim(token string) (*helpers.Claims, bool) {
-	claims, err := helpers.ValidateToken(token)
-	if err != nil {
-		return nil, false
-	}
-	return claims, true
-}
-
-func Request() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
-		defer cancel()
-
-		token := c.Query("token")
-
-		claims, ok := getClaim(token)
-
-		if !ok {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-			return
-		}
-
-		receiver := c.Param("receiver")
-		sender := claims.Username
-		request := models.Request{
-			From:   sender,
-			To:     receiver,
-			Status: "pending",
-		}
-		requestCollection := config.OpenCollection("request")
-
-		_, insertErr := requestCollection.InsertOne(ctx, request)
-
-		if insertErr != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": insertErr.Error()})
-			return
-		}
-		
-		c.JSON(http.StatusOK, gin.H{
-			"message": "Requested",
-		})
-	}
-}
-
 func Reject() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 		defer cancel()
 
-		token := c.Query("token")
-
-		claims, ok := getClaim(token)
+		claims, ok := c.Get("claims")
 
 		if !ok {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 			return
 		}
 
-		person_rejecting := claims.Username
+		person_rejecting := claims.(*helpers.Claims).Username
 		person_getting_rejected := c.Param("receiver")
-		
+
 		filter := bson.M{
 			"from": person_getting_rejected,
 			"to":   person_rejecting,
@@ -103,16 +57,14 @@ func Accept() gin.HandlerFunc {
 		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 		defer cancel()
 
-		token := c.Query("token")
-
-		claims, ok := getClaim(token)
+		claims, ok := c.Get("claims")
 
 		if !ok {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 			return
 		}
 
-		accepter := claims.Username
+		accepter := claims.(*helpers.Claims).Username
 		sender := c.Param("username")
 
 		friend := models.Friend{
@@ -157,44 +109,59 @@ func Accept() gin.HandlerFunc {
 	}
 }
 
-
-func Remove() gin.HandlerFunc{
-	return func(c *gin.Context){
+func Remove() gin.HandlerFunc {
+	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 		defer cancel()
 
-		token := c.Query("token")
-
-		claims, ok := getClaim(token)
+		claims, ok := c.Get("claims")
 
 		if !ok {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 			return
 		}
 
-		person_removing := claims.Username
+		person_removing := claims.(*helpers.Claims).Username
 		person_getting_removed := c.Param("username")
 
-		filter := bson.M{
-			"username" : person_removing,
+		filterOne := bson.M{
+			"username":       person_removing,
 			"friendusername": person_getting_removed,
+		}
+
+		filterTwo := bson.M{
+			"from": person_getting_removed,
+			"to":   person_removing,
 		}
 
 		friendCollection := config.OpenCollection("friend")
 
-		result, err := friendCollection.DeleteOne(ctx, filter)
+		result, err := friendCollection.DeleteOne(ctx, filterOne)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err})
 			return
 		}
 
 		if result.DeletedCount == 0 {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "No document found to be deleted"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "No friend document found to be deleted"})
+			return
+		}
+
+		requestCollection := config.OpenCollection("request")
+
+		result, e := requestCollection.DeleteOne(ctx, filterTwo)
+		if e != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": e})
+			return
+		}
+
+		if result.DeletedCount == 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "No request document found to be deleted"})
 			return
 		}
 
 		c.JSON(http.StatusOK, gin.H{
-			"message": "Removed",
+			"message": "Friend removed and Request Record Deleted",
 		})
 	}
 }

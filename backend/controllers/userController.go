@@ -225,8 +225,9 @@ func RefreshTokenHandler() gin.HandlerFunc {
 
 		//Generate new tokens
 		newAccessToken, newRefreshToken := helpers.GenerateToken(user.User_id, *user.Username)
-		helpers.UpdateAllToken(newAccessToken, newRefreshToken, user.User_id)
 
+		helpers.UpdateAllToken(newAccessToken, newRefreshToken, user.User_id)
+		
 		c.JSON(http.StatusOK, gin.H{
 			"access_token":  newAccessToken,
 			"refresh_token": newRefreshToken,

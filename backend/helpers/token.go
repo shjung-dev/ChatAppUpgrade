@@ -30,7 +30,7 @@ func GetJWTKey() []byte {
 
 func GenerateToken(userID string, username string) (string, string) {
 	tokenExpiry := time.Now().Add(24 * time.Hour).Unix()
-
+		
 	refreshTokenExpiry := time.Now().Add(7 * 24 * time.Hour).Unix()
 
 	//To create a new token we need to a new claim for respective token

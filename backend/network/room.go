@@ -8,7 +8,7 @@ import (
 	"sync"
 )
 
-//Global Online Client tracker variable
+// Global Online Client tracker variable
 var onlineClients = make(map[string]*Client)
 var onlineMu sync.Mutex
 
@@ -106,9 +106,9 @@ func (r *Room) ServeHttp(w http.ResponseWriter, req *http.Request) {
 	}
 
 	client := &Client{
-		Socket:  socket,
-		Receive: make(chan []byte, messageBufferSize),
-		Room:    r,
+		Socket:   socket,
+		Receive:  make(chan []byte, messageBufferSize),
+		Room:     r,
 		Username: username,
 	}
 
@@ -117,16 +117,18 @@ func (r *Room) ServeHttp(w http.ResponseWriter, req *http.Request) {
 	onlineMu.Unlock()
 
 	r.Join <- client
-	defer func(){
+	defer func() {
 		r.Leave <- client
 		onlineMu.Lock()
-		delete(onlineClients , username)
+		delete(onlineClients, username)
 		onlineMu.Unlock()
 	}()
-	
+
 	go client.Write()
 
-	client.ReceivePendingFriendRequest()
+	client.ReceivePendingFriendRequest() //Working
+	client.LoadAllFriends() //Working
+	client.LoadAllMessage()
 
 	client.Read()
 }

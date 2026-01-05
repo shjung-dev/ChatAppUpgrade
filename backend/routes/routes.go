@@ -16,11 +16,8 @@ func SetUpRoutes(r *gin.Engine) {
 	protected.Use(middleware.Authenticate())
 	{
 		protected.GET("/user/:receiver", controllers.SearchUser())
-		protected.POST("/request/:username", controllers.Request())
 		protected.POST("/accept/:username", controllers.Accept())
-		protected.POST("/reject/:username" , controllers.Reject())
-		protected.POST("/remove/:username" , controllers.Remove())
-		protected.POST("/createRoom", controllers.CreateRoom())
+		protected.POST("/reject/:receiver", controllers.Reject())
+		protected.POST("/remove/:username", controllers.Remove())
 	}
-
 }

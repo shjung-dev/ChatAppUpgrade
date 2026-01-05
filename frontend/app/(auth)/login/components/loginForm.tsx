@@ -45,6 +45,8 @@ export function LoginForm() {
         throw new Error(data.error || "Login failed");
       }
 
+      console.log(data);
+
       // Store session values (backend-compatible)
       if (
         data.access_token &&

@@ -7,9 +7,9 @@ import (
 )
 
 type Message struct {
-	ID     primitive.ObjectID `bson:"_id,omitempty"`
-	From   *string            `json:"from"`
-	To     *string            `json:"to"`
-	Text   *string            `json:"text"`
-	SentAt time.Time         `json:"sent_at`
+	ID             primitive.ObjectID `bson:"_id,omitempty"`
+	ConversationID string             `bson:"conversationID"`
+	SenderUserName string             `bson:"senderUserName"`
+	Content        string             `bson:"content"`
+	CreatedAt      time.Time          `bson:"created_at"`
 }
