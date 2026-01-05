@@ -128,7 +128,7 @@ func (r *Room) ServeHttp(w http.ResponseWriter, req *http.Request) {
 
 	client.ReceivePendingFriendRequest() //Working
 	client.LoadAllFriends() //Working
-	client.LoadAllMessage()
+	client.LoadAllMessage() //Working
 
 	client.Read()
 }
