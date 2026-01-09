@@ -46,6 +46,9 @@ export function LoginForm() {
         throw new Error(data.error || "Login failed");
       }
 
+      console.log(data);
+
+      // Store session values (backend-compatible)
       if (
         data.access_token &&
         data.refresh_token &&
@@ -65,68 +68,49 @@ export function LoginForm() {
   }
 
   return (
-    <Card className="mx-auto max-w-sm rounded-2xl border border-border/60 bg-background/80 backdrop-blur shadow-xl transition-all duration-300 hover:shadow-2xl">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-semibold tracking-tight">
-          Welcome back
-        </CardTitle>
-        <CardDescription className="text-muted-foreground">
-          Enter your credentials to log in
-        </CardDescription>
+    <Card className="mx-auto max-w-sm">
+      <CardHeader>
+        <CardTitle className="text-xl">Login</CardTitle>
+        <CardDescription>Enter your credentials to log in</CardDescription>
       </CardHeader>
 
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit}>
           <div className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="username" className="text-sm font-medium">
-                Username
-              </Label>
+              <Label htmlFor="username">Username</Label>
               <Input
                 id="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
-                className="h-11 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-primary"
               />
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="password" className="text-sm font-medium">
-                Password
-              </Label>
+              <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="h-11 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-primary"
               />
             </div>
 
             {error && (
-              <p className="text-sm text-red-500 animate-in fade-in slide-in-from-top-1">
-                {error}
-              </p>
+              <p className="text-sm text-red-500">{error}</p>
             )}
 
-            <Button
-              type="submit"
-              className="h-11 w-full rounded-xl text-base font-medium transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
-              disabled={loading}
-            >
+            <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Logging in..." : "Log In"}
             </Button>
           </div>
         </form>
 
-        <div className="mt-6 text-center text-sm text-muted-foreground">
+        <div className="mt-4 text-center text-sm">
           Don&apos;t have an account?{" "}
-          <Link
-            href="/signup"
-            className="font-medium text-primary underline-offset-4 transition-colors hover:underline"
-          >
+          <Link href="/signup" className="underline">
             Sign up
           </Link>
         </div>
