@@ -132,7 +132,9 @@ const Home = () => {
     const token = sessionStorage.getItem("access_token");
     if (!token) return;
 
-    const ws = new WebSocket(`wss://upgradedchatappservice.onrender.com/ws?token=${token}`);
+    const ws = new WebSocket(
+      `wss://upgradedchatappservice.onrender.com/ws?token=${token}`
+    );
     socketRef.current = ws;
 
     ws.onopen = () => console.log("WebSocket connected");
@@ -465,66 +467,72 @@ const Home = () => {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden font-sans">
-      {/* ---------------- SIDEBAR ---------------- */}
-      <div className="w-80 border-r border-gray-300 flex flex-col">
-        <div className="p-4 border-b border-gray-300">
-          <h2 className="text-lg font-bold">Welcome, {username}</h2>
+    <div className="flex h-screen w-screen overflow-hidden bg-linear-to-br from-slate-50 to-slate-100 dark:from-zinc-900 dark:to-zinc-950">
+      {/* ================= SIDEBAR ================= */}
+      <aside className="hidden md:flex w-80 flex-col border-r bg-white/80 dark:bg-zinc-900/80 backdrop-blur">
+        <div className="p-4 border-b">
+          <h2 className="text-lg font-semibold">Welcome, {username}</h2>
+
           <input
             type="text"
             placeholder="Search username..."
             value={usernameInput}
             onChange={(e) => setUsernameInput(e.target.value)}
-            className="w-full border rounded px-2 py-1 mt-2"
+            className="mt-3 w-full rounded-xl border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
           />
+
           <button
             onClick={searchUser}
-            className="w-full bg-blue-500 text-white rounded mt-2 py-1"
+            className="mt-2 w-full rounded-xl bg-blue-600 py-2 text-sm font-medium text-white transition hover:bg-blue-700 active:scale-95"
           >
             Search
           </button>
-          {error && <p className="text-red-500 mt-1">{error}</p>}
+
+          {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
+
           {searchedUser && (
-            <div className="mt-2 flex justify-between items-center">
-              <span>{searchedUser.receiver.username}</span>
-              <div className="space-x-2">
-                {searchedUser.message !== "accepted" &&
-                  searchedUser.message !== "pending" && (
-                    <button
-                      onClick={() => sendFriendRequest(searchedUser.receiver)}
-                      className="text-sm bg-green-500 text-white px-2 py-1 rounded"
-                    >
-                      Add
-                    </button>
-                  )}
-                {searchedUser.message === "pending" && (
-                  <span className="text-sm text-gray-500">Pending</span>
-                )}
-              </div>
+            <div className="mt-3 flex items-center justify-between rounded-lg border p-2">
+              <span className="text-sm font-medium">
+                {searchedUser.receiver.username}
+              </span>
+              {searchedUser.message === "pending" ? (
+                <span className="text-xs text-gray-400">Pending</span>
+              ) : (
+                <button
+                  onClick={() => sendFriendRequest(searchedUser.receiver)}
+                  className="rounded-lg bg-green-500 px-3 py-1 text-xs text-white hover:bg-green-600"
+                >
+                  Add
+                </button>
+              )}
             </div>
           )}
         </div>
 
-        {/* ---------------- FRIEND REQUESTS ---------------- */}
-        <div className="p-4 border-b border-gray-300">
-          <h3 className="font-semibold mb-2">Friend Requests</h3>
-          {friendRequests.length === 0 && <p>No requests</p>}
+        {/* Friend Requests */}
+        <div className="p-4 border-b">
+          <h3 className="mb-2 text-sm font-semibold text-gray-500">
+            Friend Requests
+          </h3>
+          {friendRequests.length === 0 && (
+            <p className="text-sm text-gray-400">No requests</p>
+          )}
           {friendRequests.map((req) => (
             <div
               key={req.username}
-              className="flex justify-between items-center mb-1"
+              className="mb-2 flex items-center justify-between rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-zinc-800"
             >
-              <span>{req.username}</span>
-              <div className="space-x-1">
+              <span className="text-sm">{req.username}</span>
+              <div className="flex gap-1">
                 <button
-                  className="bg-green-500 text-white px-2 py-1 rounded text-sm"
                   onClick={() => handleRequest(req, true)}
+                  className="rounded bg-green-500 px-2 py-1 text-xs text-white"
                 >
                   Accept
                 </button>
                 <button
-                  className="bg-red-500 text-white px-2 py-1 rounded text-sm"
                   onClick={() => handleRequest(req, false)}
+                  className="rounded bg-red-500 px-2 py-1 text-xs text-white"
                 >
                   Reject
                 </button>
@@ -533,23 +541,25 @@ const Home = () => {
           ))}
         </div>
 
-        {/* ---------------- FRIEND LIST ---------------- */}
-        <div className="p-4 flex-1 overflow-y-auto">
-          <h3 className="font-semibold mb-2">Friends</h3>
-          {friendList.length === 0 && <p>No friends</p>}
+        {/* Friends */}
+        <div className="flex-1 overflow-y-auto p-4">
+          <h3 className="mb-2 text-sm font-semibold text-gray-500">Friends</h3>
+          {friendList.length === 0 && (
+            <p className="text-sm text-gray-400">No friends</p>
+          )}
           {friendList.map((friend) => (
             <div
               key={friend.username}
-              className="flex justify-between items-center mb-1 cursor-pointer hover:bg-gray-100 p-1 rounded"
               onClick={() => handleFriendClick(friend)}
+              className="mb-2 flex items-center justify-between rounded-xl p-2 cursor-pointer transition hover:bg-gray-100 dark:hover:bg-zinc-800"
             >
-              <span>{friend.username}</span>
+              <span className="text-sm font-medium">{friend.username}</span>
               <button
-                className="bg-red-500 text-white px-2 py-1 rounded text-sm"
                 onClick={(e) => {
                   e.stopPropagation();
                   removeFriend(friend);
                 }}
+                className="text-xs text-red-500 hover:underline"
               >
                 Remove
               </button>
@@ -557,91 +567,67 @@ const Home = () => {
           ))}
         </div>
 
-        <div className="p-4 border-t border-gray-300">
+        <div className="p-4 border-t">
           <button
-            className="w-full bg-purple-500 text-white py-2 rounded"
             onClick={() => setShowGroupModal(true)}
+            className="w-full rounded-xl bg-purple-600 py-2 text-sm font-medium text-white transition hover:bg-purple-700 active:scale-95"
           >
             Create Group Chat
           </button>
         </div>
-      </div>
+      </aside>
 
-      {/* ---------------- CHAT LIST ---------------- */}
-      <div className="w-80 border-r border-gray-300 flex flex-col">
-        <h3 className="p-4 font-semibold border-b border-gray-300">Chats</h3>
-        <div className="flex-1 overflow-y-auto">
-          {[
-            ...chatUsers.sort((a, b) => {
-              const aTime = a.LastMessageAt
-                ? new Date(a.LastMessageAt).getTime()
-                : 0;
-              const bTime = b.LastMessageAt
-                ? new Date(b.LastMessageAt).getTime()
-                : 0;
-              return bTime - aTime;
-            }),
-            ...temporaryChats.filter(
-              (temp) =>
-                !chatUsers.find(
-                  (c) =>
-                    c.Participants.length === temp.Participants.length &&
-                    c.Participants.every((p) => temp.Participants.includes(p))
-                )
-            ),
-          ].map((chat) => (
+      {/* ================= CHAT LIST ================= */}
+      <section className="w-full md:w-80 border-r bg-white/70 dark:bg-zinc-900/70 backdrop-blur">
+        <h3 className="border-b p-4 font-semibold">Chats</h3>
+        <div className="h-full overflow-y-auto">
+          {chatUsers.map((chat) => (
             <div
               key={chat.ConversationID}
-              className={`p-3 cursor-pointer hover:bg-gray-100 ${
+              onClick={() => openChat(chat)}
+              className={`cursor-pointer border-b p-3 transition hover:bg-gray-100 dark:hover:bg-zinc-800 ${
                 activeChat?.ConversationID === chat.ConversationID
-                  ? "bg-gray-200"
+                  ? "bg-blue-50 dark:bg-zinc-800"
                   : ""
               }`}
-              onClick={() => openChat(chat)}
             >
-              <p className="font-semibold">{getChatName(chat)}</p>
-              <p className="text-sm text-gray-600 truncate">
+              <p className="font-medium">{getChatName(chat)}</p>
+              <p className="truncate text-sm text-gray-500">
                 {chatMessages[chat.ConversationID]?.slice(-1)[0]?.Content || ""}
               </p>
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* ---------------- ACTIVE CHAT ---------------- */}
-      <div className="flex-1 flex flex-col">
+      {/* ================= ACTIVE CHAT ================= */}
+      <main className="flex flex-1 flex-col">
         {activeChat ? (
           <>
-            <div className="p-4 border-b border-gray-300 font-semibold">
+            <div className="border-b p-4 font-semibold">
               {getChatName(activeChat)}
             </div>
-            <div
-              className={`flex-1 p-4 overflow-y-auto space-y-2 ${
-                messages.length === 0
-                  ? "flex flex-col justify-center items-center"
-                  : ""
-              }`}
-            >
+
+            <div className="flex-1 space-y-3 overflow-y-auto p-4">
               {messages.length === 0 ? (
-                <span className="text-gray-400 italic">
-                  No messages here yet
-                </span>
+                <div className="flex h-full items-center justify-center text-gray-400">
+                  No messages yet
+                </div>
               ) : (
                 messages.map((msg, idx) => {
                   const isMe = msg.SenderUserName === username;
                   return (
                     <div
                       key={idx}
-                      className={`flex flex-col ${
-                        isMe ? "items-end" : "items-start"
+                      className={`flex ${
+                        isMe ? "justify-end" : "justify-start"
                       }`}
                     >
-                      <span className="text-xs text-gray-500 mb-1">
-                        {msg.SenderUserName}
-                      </span>
                       <div
-                        className={`p-2 rounded inline-block ${
-                          isMe ? "bg-blue-100" : "bg-gray-200"
+                        className={`max-w-xs rounded-2xl px-4 py-2 text-sm shadow ${
+                          isMe
+                            ? "bg-blue-600 text-white"
+                            : "bg-gray-200 dark:bg-zinc-800"
                         }`}
                       >
                         {msg.Content}
@@ -652,87 +638,29 @@ const Home = () => {
               )}
               <div ref={chatEndRef} />
             </div>
-            <div className="p-4 border-t border-gray-300 flex space-x-2">
+
+            <div className="flex gap-2 border-t p-4">
               <input
-                type="text"
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
-                className="flex-1 border rounded px-2 py-1"
+                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                 placeholder="Type a message..."
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") sendMessage();
-                }}
+                className="flex-1 rounded-xl border px-4 py-2 focus:ring-2 focus:ring-blue-500"
               />
               <button
-                className="bg-blue-500 text-white px-4 py-1 rounded"
                 onClick={sendMessage}
+                className="rounded-xl bg-blue-600 px-5 py-2 text-white transition hover:bg-blue-700 active:scale-95"
               >
                 Send
               </button>
             </div>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-400">
+          <div className="flex flex-1 items-center justify-center text-gray-400">
             Select a chat to start messaging
           </div>
         )}
-      </div>
-
-      {/* ---------------- GROUP MODAL ---------------- */}
-      {showGroupModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center">
-          <div className="bg-white rounded p-6 w-96">
-            <h2 className="text-lg font-semibold mb-4">Create Group</h2>
-            <input
-              type="text"
-              placeholder="Group Name"
-              value={groupName}
-              onChange={(e) => setGroupName(e.target.value)}
-              className="w-full border rounded px-2 py-1 mb-4"
-            />
-            <h3 className="font-semibold mb-2">Select Friends</h3>
-            <div className="max-h-40 overflow-y-auto border p-2 mb-4">
-              {friendList.map((f) => (
-                <div key={f.username} className="flex items-center mb-1">
-                  <input
-                    type="checkbox"
-                    checked={selectedFriends.has(f.username)}
-                    onChange={(e) => {
-                      setSelectedFriends((prev) => {
-                        const newSet = new Set(prev);
-                        if (e.target.checked) newSet.add(f.username);
-                        else newSet.delete(f.username);
-                        return newSet;
-                      });
-                    }}
-                    className="mr-2"
-                  />
-                  <span>{f.username}</span>
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-end space-x-2">
-              <button
-                className="bg-gray-300 px-3 py-1 rounded"
-                onClick={() => setShowGroupModal(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className={`px-3 py-1 rounded text-white ${
-                  selectedFriends.size >= 2
-                    ? "bg-purple-500"
-                    : "bg-purple-300 cursor-not-allowed"
-                }`}
-                onClick={createGroupChat}
-                disabled={selectedFriends.size < 2}
-              >
-                Create
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      </main>
     </div>
   );
 };
